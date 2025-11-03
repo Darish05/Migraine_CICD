@@ -1,0 +1,166 @@
+╔══════════════════════════════════════════════════════════════╗
+║     FORK REPOSITORY & PUSH CHANGES - QUICK GUIDE            ║
+╚══════════════════════════════════════════════════════════════╝
+
+🔴 ISSUE: You don't have push permission to Darish05/Migraine_CICD
+
+✅ SOLUTION: Fork the repo to your GitHub account
+
+═══════════════════════════════════════════════════════════════
+
+📋 STEP 1: FORK THE REPOSITORY
+═══════════════════════════════════════════════════════════════
+
+1. Go to: https://github.com/Darish05/Migraine_CICD
+
+2. Click the "Fork" button (top right)
+
+3. Select your account (rhemiSINGH or rhemiSINGH26)
+
+4. Wait for fork to complete
+
+5. Your new repo will be at:
+   https://github.com/YOUR-USERNAME/Migraine_CICD
+
+═══════════════════════════════════════════════════════════════
+
+📋 STEP 2: UPDATE YOUR LOCAL GIT REMOTE
+═══════════════════════════════════════════════════════════════
+
+Run these commands (replace YOUR-USERNAME):
+
+cd /home/rhemi/IA3/Dar_mlops/Migraine_CICD
+
+# Set your forked repo as origin
+git remote set-url origin https://github.com/YOUR-USERNAME/Migraine_CICD.git
+
+# Verify
+git remote -v
+
+═══════════════════════════════════════════════════════════════
+
+📋 STEP 3: PUSH YOUR CHANGES
+═══════════════════════════════════════════════════════════════
+
+# Push all commits
+git push origin main
+
+# If it asks for credentials:
+# Username: YOUR-GITHUB-USERNAME
+# Password: YOUR-GITHUB-PERSONAL-ACCESS-TOKEN
+#           (NOT your GitHub password!)
+
+═══════════════════════════════════════════════════════════════
+
+🔑 STEP 4: CREATE GITHUB PERSONAL ACCESS TOKEN (if needed)
+═══════════════════════════════════════════════════════════════
+
+1. Go to: https://github.com/settings/tokens
+
+2. Click "Generate new token" → "Generate new token (classic)"
+
+3. Settings:
+   - Note: "Jenkins CI/CD for Migraine Project"
+   - Expiration: 90 days (or longer)
+   - Scopes: ✅ repo (all repo permissions)
+
+4. Click "Generate token"
+
+5. COPY THE TOKEN (you'll only see it once!)
+
+6. Use this token as password when git push asks
+
+═══════════════════════════════════════════════════════════════
+
+📋 STEP 5: UPDATE JENKINSFILE WITH YOUR REPO
+═══════════════════════════════════════════════════════════════
+
+After forking, update line 19 in Jenkinsfile:
+
+OLD:
+    git clone https://github.com/Darish05/Migraine_CICD.git ${WORKSPACE}
+
+NEW:
+    git clone https://github.com/YOUR-USERNAME/Migraine_CICD.git ${WORKSPACE}
+
+Then commit and push:
+
+git add Jenkinsfile
+git commit -m "Update repo URL to forked repository"
+git push origin main
+
+═══════════════════════════════════════════════════════════════
+
+🚀 STEP 6: CREATE JENKINS PIPELINE
+═══════════════════════════════════════════════════════════════
+
+1. Go to: http://localhost:9090
+
+2. Click "New Item"
+   - Name: Migraine-ML-GitHub
+   - Type: Pipeline
+   - Click OK
+
+3. In Pipeline section:
+   - Definition: Pipeline script from SCM
+   - SCM: Git
+   - Repository URL: https://github.com/YOUR-USERNAME/Migraine_CICD.git
+   - Branch: */main
+   - Script Path: Jenkinsfile
+   - Click Save
+
+4. Click "Build Now"
+
+═══════════════════════════════════════════════════════════════
+
+✅ WHAT WILL HAPPEN
+═══════════════════════════════════════════════════════════════
+
+Jenkins will:
+1. ✅ Clone your GitHub repo
+2. ✅ Check environment (Docker, files)
+3. ✅ Run code quality checks
+4. ✅ Build API + Streamlit images (parallel)
+5. ✅ Stop old services
+6. ✅ Deploy new services with docker-compose
+7. ✅ Run health checks (API, Streamlit, MLflow)
+8. ✅ Generate deployment report
+
+Total time: ~5-8 minutes
+
+═══════════════════════════════════════════════════════════════
+
+🎯 QUICK COMMANDS SUMMARY
+═══════════════════════════════════════════════════════════════
+
+# After forking on GitHub:
+
+cd /home/rhemi/IA3/Dar_mlops/Migraine_CICD
+git remote set-url origin https://github.com/YOUR-USERNAME/Migraine_CICD.git
+git push origin main
+
+# Update Jenkinsfile repo URL, then:
+git add Jenkinsfile
+git commit -m "Update to forked repo"
+git push origin main
+
+# Then create Jenkins pipeline pointing to your forked repo!
+
+═══════════════════════════════════════════════════════════════
+
+💡 YOUR COMMITTED CHANGES INCLUDE
+═══════════════════════════════════════════════════════════════
+
+✅ streamlit_app.py - Full web UI
+✅ Dockerfile.streamlit - Streamlit container
+✅ Jenkinsfile - GitHub CI/CD pipeline
+✅ Jenkinsfile.local - Local CI/CD pipeline
+✅ docker-compose.yml - Updated with named volumes
+✅ requirements-streamlit.txt - Streamlit dependencies
+✅ .streamlit/config.toml - Streamlit config
+✅ Updated migraine_models_enhanced.py - Fixed paths
+✅ Documentation files (JENKINS.md, etc.)
+
+All ready to push once you fork the repo! 🎉
+
+═══════════════════════════════════════════════════════════════

@@ -5,6 +5,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
+import os
 
 # Page configuration
 st.set_page_config(
@@ -39,8 +40,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# API endpoint
-API_URL = "http://localhost:8000"
+# API endpoint - configurable via environment variable
+API_URL = os.getenv("API_URL", "http://localhost:8000")
 
 # Title and description
 st.title("🏥 Migraine Prediction System")
