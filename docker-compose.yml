@@ -6,8 +6,8 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./mlruns:/mlflow/mlruns
-      - ./models:/mlflow/models
+      - mlruns:/mlflow/mlruns
+      - models:/mlflow/models
     command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:///mlflow/mlruns/mlflow.db --default-artifact-root /mlflow/mlruns
     networks:
       - migraine-network
@@ -22,9 +22,9 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./models:/app/models
+      - models:/app/models
       - ./data:/app/data
-      - ./mlruns:/app/mlruns
+      - mlruns:/app/mlruns
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
       - PYTHONUNBUFFERED=1
@@ -34,6 +34,22 @@ services:
       - migraine-network
     restart: unless-stopped
     command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+
+  # Streamlit UI
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: migraine-streamlit
+    ports:
+      - "8501:8501"
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - api
+    networks:
+      - migraine-network
+    restart: unless-stopped
 
   # PostgreSQL Database (optional - for production)
   # postgres:
@@ -91,3 +107,5 @@ volumes:
   postgres-data:
   prometheus-data:
   grafana-data:
+  mlruns:
+  models:

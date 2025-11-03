@@ -378,7 +378,7 @@ class EnhancedMigrainePredictor:
                 models_info = json.load(f)
             
             for i in range(2):
-                with open(f'classification_model_top{i+1}.pkl', 'rb') as f:
+                with open(f'models/classification_model_top{i+1}.pkl', 'rb') as f:
                     model = pickle.load(f)
                     self.top_classification_models.append({
                         'model': model,
@@ -386,7 +386,7 @@ class EnhancedMigrainePredictor:
                         **models_info['classification'][i]['metrics']
                     })
                 
-                with open(f'regression_model_top{i+1}.pkl', 'rb') as f:
+                with open(f'models/regression_model_top{i+1}.pkl', 'rb') as f:
                     model = pickle.load(f)
                     self.top_regression_models.append({
                         'model': model,
@@ -394,7 +394,7 @@ class EnhancedMigrainePredictor:
                         **models_info['regression'][i]['metrics']
                     })
             
-            with open('feature_names.pkl', 'rb') as f:
+            with open('models/feature_names.pkl', 'rb') as f:
                 self.feature_names = pickle.load(f)
             
             print("✅ Top 2 models loaded successfully!")

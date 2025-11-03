@@ -1,0 +1,235 @@
+pipeline {
+    agent any
+    
+    environment {
+        // Host project path (Jenkins will use Docker to copy files)
+        HOST_PROJECT_PATH = "/home/rhemi/IA3/Dar_mlops/Migraine_CICD"
+        
+        // Image names
+        API_IMAGE = "migraine-ml-api"
+        STREAMLIT_IMAGE = "migraine-streamlit"
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
+    }
+    
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timestamps()
+        timeout(time: 30, unit: 'MINUTES')
+    }
+    
+    stages {
+        stage('Prepare Workspace') {
+            steps {
+                echo '📥 Copying project files to Jenkins workspace...'
+                sh '''
+                    # Clean workspace
+                    cd ${WORKSPACE}
+                    rm -rf * .[!.]* 2>/dev/null || true
+                    
+                    echo "Using tar method to copy files..."
+                    # Use tar to copy files (more reliable than cp)
+                    docker run --rm \
+                        -v ${HOST_PROJECT_PATH}:/source:ro \
+                        -v ${WORKSPACE}:/dest \
+                        alpine sh -c "cd /source && tar cf - . | tar xf - -C /dest"
+                    
+                    echo "Workspace contents after copy:"
+                    ls -la ${WORKSPACE} | head -30
+                    
+                    echo "Checking critical files..."
+                    ls -l ${WORKSPACE}/*.py 2>/dev/null || echo "Warning: No Python files found!"
+                    
+                    echo "Total files copied:"
+                    find ${WORKSPACE} -type f | wc -l
+                '''
+            }
+        }
+        
+        stage('Environment Check') {
+            steps {
+                echo '🔧 Checking environment...'
+                sh '''
+                    cd ${WORKSPACE}
+                    echo "Build Number: ${BUILD_NUMBER}"
+                    docker --version
+                    docker-compose --version
+                    
+                    # Verify key files
+                    for file in app.py streamlit_app.py docker-compose.yml; do
+                        if [ -f "$file" ]; then
+                            echo "✓ Found $file"
+                        else
+                            echo "✗ Missing $file"
+                        fi
+                    done
+                '''
+            }
+        }
+        
+        stage('Code Quality') {
+            steps {
+                echo '🔍 Running code quality checks...'
+                sh '''
+                    cd ${WORKSPACE}
+                    
+                    # Python syntax check
+                    python3 -m py_compile app.py 2>&1 && echo "✓ app.py syntax OK" || echo "✗ app.py has issues"
+                    python3 -m py_compile streamlit_app.py 2>&1 && echo "✓ streamlit_app.py syntax OK" || echo "✗ streamlit_app.py has issues"
+                    python3 -m py_compile migraine_models_enhanced.py 2>&1 && echo "✓ migraine_models_enhanced.py syntax OK" || echo "✗ migraine_models_enhanced.py has issues"
+                    
+                    echo "Code quality checks completed"
+                '''
+            }
+        }
+        
+        stage('Build Images') {
+            parallel {
+                stage('Build API') {
+                    steps {
+                        echo '🐳 Building API image...'
+                        sh '''
+                            cd ${WORKSPACE}
+                            docker build -f Dockerfile \
+                                -t ${API_IMAGE}:${IMAGE_TAG} \
+                                -t ${API_IMAGE}:latest \
+                                --no-cache \
+                                .
+                            echo "API image built successfully"
+                        '''
+                    }
+                }
+                
+                stage('Build Streamlit') {
+                    steps {
+                        echo '🐳 Building Streamlit image...'
+                        sh '''
+                            cd ${WORKSPACE}
+                            docker build -f Dockerfile.streamlit \
+                                -t ${STREAMLIT_IMAGE}:${IMAGE_TAG} \
+                                -t ${STREAMLIT_IMAGE}:latest \
+                                --no-cache \
+                                .
+                            echo "Streamlit image built successfully"
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('Stop Old Services') {
+            steps {
+                echo '🛑 Stopping old services...'
+                sh '''
+                    cd ${WORKSPACE}
+                    docker-compose down --remove-orphans || echo "No services running"
+                    
+                    # Clean up dangling images
+                    docker image prune -f || true
+                '''
+            }
+        }
+        
+        stage('Deploy Services') {
+            steps {
+                echo '🚀 Deploying services...'
+                sh '''
+                    cd ${WORKSPACE}
+                    
+                    # Start all services
+                    docker-compose up -d
+                    
+                    echo "Waiting for services to start..."
+                    sleep 10
+                    
+                    # Check service status
+                    docker-compose ps
+                '''
+            }
+        }
+        
+        stage('Health Check') {
+            steps {
+                echo '🏥 Running health checks...'
+                sh '''
+                    # Wait for services to be ready
+                    echo "Waiting 30 seconds for services to initialize..."
+                    sleep 30
+                    
+                    # Check API health
+                    echo "Checking API health..."
+                    curl -f http://localhost:8000/health || echo "API not ready yet"
+                    
+                    # Check Streamlit
+                    echo "Checking Streamlit..."
+                    curl -f http://localhost:8501 || echo "Streamlit not ready yet"
+                    
+                    # Check MLflow
+                    echo "Checking MLflow..."
+                    curl -f http://localhost:5000 || echo "MLflow not ready yet"
+                    
+                    echo "All health checks completed"
+                '''
+            }
+        }
+        
+        stage('Deployment Report') {
+            steps {
+                echo '📊 Generating deployment report...'
+                sh '''
+                    cd ${WORKSPACE}
+                    
+                    echo "═══════════════════════════════════════"
+                    echo "      DEPLOYMENT SUMMARY"
+                    echo "═══════════════════════════════════════"
+                    echo "Build: ${BUILD_NUMBER}"
+                    echo "Date: $(date)"
+                    echo ""
+                    echo "Docker Images:"
+                    docker images | grep migraine
+                    echo ""
+                    echo "Running Services:"
+                    docker-compose ps
+                    echo ""
+                    echo "Service URLs:"
+                    echo "  - API:       http://localhost:8000"
+                    echo "  - Streamlit: http://localhost:8501"
+                    echo "  - MLflow:    http://localhost:5000"
+                    echo "═══════════════════════════════════════"
+                '''
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo '✅ Pipeline completed successfully!'
+            echo '🎉 Services are deployed and running'
+            echo ''
+            echo 'Access your application:'
+            echo '  Streamlit UI: http://localhost:8501'
+            echo '  API Docs:     http://localhost:8000/docs'
+            echo '  MLflow:       http://localhost:5000'
+        }
+        
+        failure {
+            echo '❌ Pipeline failed!'
+            sh '''
+                echo "Collecting logs for debugging..."
+                cd ${WORKSPACE}
+                docker-compose logs --tail=50 || true
+                docker ps -a
+            '''
+        }
+        
+        always {
+            echo '🧹 Cleaning up workspace...'
+            sh '''
+                # Keep Docker containers running
+                # Only cleanup build artifacts
+                cd ${WORKSPACE}
+                rm -rf test_venv || true
+                docker system prune -f || true
+            '''
+        }
+    }
+}
