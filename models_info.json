@@ -1,0 +1,59 @@
+{
+  "classification": [
+    {
+      "name": "SVM",
+      "metrics": {
+        "accuracy": 0.804375,
+        "f1_score": 0.7497945838783631,
+        "precision": 0.766955314798512,
+        "recall": 0.804375
+      },
+      "params": {
+        "C": 1,
+        "kernel": "linear"
+      }
+    },
+    {
+      "name": "GradientBoosting",
+      "metrics": {
+        "accuracy": 0.80375,
+        "f1_score": 0.7585298047276464,
+        "precision": 0.7655984042553192,
+        "recall": 0.80375
+      },
+      "params": {
+        "learning_rate": 0.1,
+        "max_depth": 3,
+        "n_estimators": 100
+      }
+    }
+  ],
+  "regression": [
+    {
+      "name": "Ridge",
+      "metrics": {
+        "r2_score": 0.4679827009498716,
+        "mse": 0.33864903971965776,
+        "mae": 0.5036740496785284,
+        "rmse": 0.5819355975704337
+      },
+      "params": {
+        "alpha": 1
+      }
+    },
+    {
+      "name": "SVR",
+      "metrics": {
+        "r2_score": 0.4672985746407162,
+        "mse": 0.3390845118707627,
+        "mae": 0.5034949663073502,
+        "rmse": 0.5823096357358023
+      },
+      "params": {
+        "C": 0.1,
+        "kernel": "linear"
+      }
+    }
+  ],
+  "timestamp": "2025-11-01T19:09:10.172884"
+}

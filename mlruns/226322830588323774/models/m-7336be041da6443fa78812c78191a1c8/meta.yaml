@@ -1,0 +1,10 @@
+artifact_location: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/models/m-7336be041da6443fa78812c78191a1c8/artifacts
+creation_timestamp: 1762004037349
+experiment_id: '226322830588323774'
+last_updated_timestamp: 1762004054542
+model_id: m-7336be041da6443fa78812c78191a1c8
+model_type: null
+name: model_AdaBoost
+source_run_id: 50e02f39419b4fce88cf02248c5058e7
+status: 2
+status_message: null

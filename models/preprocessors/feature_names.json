@@ -1,0 +1,32 @@
+{
+  "features": [
+    "age",
+    "gender",
+    "sleep_hours",
+    "sleep_quality",
+    "stress_level",
+    "hydration",
+    "exercise",
+    "screen_time",
+    "caffeine_intake",
+    "alcohol_intake",
+    "weather_changes",
+    "menstrual_cycle",
+    "dehydration",
+    "bright_light",
+    "loud_noises",
+    "strong_smells",
+    "missed_meals",
+    "specific_foods",
+    "physical_activity",
+    "neck_pain",
+    "weather_pressure",
+    "humidity",
+    "temperature_change",
+    "sleep_score",
+    "lifestyle_risk",
+    "total_triggers",
+    "high_screen_time",
+    "age_group"
+  ]
+}

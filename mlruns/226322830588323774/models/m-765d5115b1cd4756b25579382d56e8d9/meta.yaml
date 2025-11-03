@@ -1,0 +1,10 @@
+artifact_location: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/models/m-765d5115b1cd4756b25579382d56e8d9/artifacts
+creation_timestamp: 1762003831943
+experiment_id: '226322830588323774'
+last_updated_timestamp: 1762003840054
+model_id: m-765d5115b1cd4756b25579382d56e8d9
+model_type: null
+name: model_LogisticRegression
+source_run_id: 30263bbfa19d4c35bb6bbdc2d7c60471
+status: 2
+status_message: null

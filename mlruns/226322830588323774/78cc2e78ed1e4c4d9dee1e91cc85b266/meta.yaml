@@ -1,0 +1,14 @@
+artifact_uri: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/78cc2e78ed1e4c4d9dee1e91cc85b266/artifacts
+end_time: 1762004349917
+entry_point_name: ''
+experiment_id: '226322830588323774'
+lifecycle_stage: active
+run_id: 78cc2e78ed1e4c4d9dee1e91cc85b266
+run_name: Regression_AdaBoost
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1762004329848
+status: 3
+tags: []
+user_id: Darish jerlin

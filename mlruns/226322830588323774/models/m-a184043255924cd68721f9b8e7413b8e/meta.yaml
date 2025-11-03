@@ -1,0 +1,10 @@
+artifact_location: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/models/m-a184043255924cd68721f9b8e7413b8e/artifacts
+creation_timestamp: 1762004303758
+experiment_id: '226322830588323774'
+last_updated_timestamp: 1762004317395
+model_id: m-a184043255924cd68721f9b8e7413b8e
+model_type: null
+name: model_SVR
+source_run_id: b19d165c7ade43deb140cc09c69ecbe1
+status: 2
+status_message: null

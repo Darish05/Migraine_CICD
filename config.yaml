@@ -1,0 +1,480 @@
+# ========================================
+# MIGRAINE ML PIPELINE - CONFIGURATION
+# ========================================
+# This file centralizes all configuration for the MLOps pipeline
+
+# ========================================
+# PROJECT SETTINGS
+# ========================================
+project:
+  name: "migraine-ml"
+  version: "1.0.0"
+  description: "Production MLOps Pipeline for Migraine Prediction"
+  author: "Darish05"
+
+# ========================================
+# PATHS
+# ========================================
+paths:
+  # Data paths
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  data_features: "data/features"
+
+  # Model paths
+  models_dir: "."
+  models_metadata: "models/metadata"
+  models_preprocessors: "models/preprocessors"
+
+  # Report paths
+  reports_validation: "reports/validation"
+  reports_evaluation: "reports/evaluation"
+  reports_drift: "reports/drift"
+
+  # MLflow paths
+  mlflow_tracking_uri: "http://localhost:5000"
+  mlflow_artifact_location: "./mlartifacts"
+
+# ========================================
+# DATA CONFIGURATION
+# ========================================
+data:
+  dataset_name: "migraine_dataset.csv"
+  target_column: "migraine_occurrence"
+
+  # Train-test split
+  test_size: 0.2
+  random_state: 42
+  stratify: true
+
+  # Validation thresholds
+  validation:
+    max_missing_percentage: 10.0
+    max_duplicate_percentage: 5.0
+    min_class_balance: 0.3
+    psi_threshold: 0.2
+    outlier_threshold: 3.0
+
+  # Preprocessing
+  preprocessing:
+    outlier_method: "clip" # Options: clip, remove
+    imputation_strategy: "median" # Options: mean, median, mode
+    scaling_method: "standard" # Options: standard, minmax
+
+# ========================================
+# FEATURE ENGINEERING
+# ========================================
+features:
+  n_features_to_select: 20
+  importance_threshold: 0.01
+
+  # Feature types to create
+  create_interactions: true
+  create_polynomial: true
+  create_binning: true
+  create_health_indices: true
+
+  polynomial_degree: 2
+
+  # Feature selection
+  selection_method: "random_forest" # Options: random_forest, mutual_info
+
+# ========================================
+# MODEL TRAINING
+# ========================================
+training:
+  # MLflow experiment
+  experiment_name: "migraine_prediction"
+  run_name_prefix: "exp"
+
+  # Models to train
+  classification_models:
+    - "LogisticRegression"
+    - "RandomForest"
+    - "GradientBoosting"
+    - "XGBoost"
+    - "LightGBM"
+    - "SVM"
+    - "KNN"
+    - "NaiveBayes"
+
+  regression_models:
+    - "LinearRegression"
+    - "Ridge"
+    - "Lasso"
+    - "ElasticNet"
+    - "RandomForestRegressor"
+    - "GradientBoostingRegressor"
+    - "XGBoostRegressor"
+    - "LightGBMRegressor"
+
+  # Number of top models to save
+  n_top_models: 2
+
+# ========================================
+# HYPERPARAMETERS
+# ========================================
+hyperparameters:
+  # Classification models
+  LogisticRegression:
+    max_iter: 1000
+    C: 1.0
+    solver: "lbfgs"
+
+  RandomForest:
+    n_estimators: 100
+    max_depth: 10
+    min_samples_split: 5
+    min_samples_leaf: 2
+
+  GradientBoosting:
+    n_estimators: 100
+    learning_rate: 0.1
+    max_depth: 5
+
+  XGBoost:
+    n_estimators: 100
+    learning_rate: 0.1
+    max_depth: 5
+    subsample: 0.8
+    colsample_bytree: 0.8
+
+  LightGBM:
+    n_estimators: 100
+    learning_rate: 0.1
+    num_leaves: 31
+    max_depth: 5
+
+  SVM:
+    C: 1.0
+    kernel: "rbf"
+    gamma: "scale"
+
+  KNN:
+    n_neighbors: 5
+    weights: "uniform"
+
+  # Regression models
+  Ridge:
+    alpha: 1.0
+
+  Lasso:
+    alpha: 1.0
+
+  ElasticNet:
+    alpha: 1.0
+    l1_ratio: 0.5
+
+# ========================================
+# EVALUATION
+# ========================================
+evaluation:
+  # Metrics to track
+  classification_metrics:
+    - "accuracy"
+    - "precision"
+    - "recall"
+    - "f1_score"
+    - "roc_auc"
+
+  regression_metrics:
+    - "mse"
+    - "rmse"
+    - "mae"
+    - "r2_score"
+
+  # Thresholds
+  min_accuracy: 0.80
+  overfitting_threshold: 0.10
+  underfitting_threshold: 0.70
+
+  # Visualization
+  save_confusion_matrix: true
+  save_roc_curve: true
+  save_feature_importance: true
+
+# ========================================
+# DRIFT DETECTION
+# ========================================
+drift:
+  # Detection methods
+  enable_psi: true
+  enable_ks_test: true
+  enable_performance_drift: true
+
+  # Thresholds
+  psi_threshold: 0.2
+  ks_test_pvalue: 0.05
+  performance_degradation_threshold: 0.05
+
+  # Alerting
+  alert_on_drift: true
+  alert_methods:
+    - "log"
+    - "email" # Requires email configuration
+
+# ========================================
+# MONITORING
+# ========================================
+monitoring:
+  # Prometheus settings
+  prometheus_port: 9090
+  metrics_update_interval: 60 # seconds
+
+  # Health checks
+  health_check_interval: 30 # seconds
+  health_check_timeout: 5 # seconds
+
+  # Metrics to track
+  track_prediction_count: true
+  track_prediction_latency: true
+  track_model_accuracy: true
+  track_drift_score: true
+  track_error_rate: true
+
+  # Alerting
+  alert_on_high_latency: true
+  latency_threshold_ms: 1000
+
+  alert_on_low_accuracy: true
+  accuracy_threshold: 0.75
+
+  alert_on_high_error_rate: true
+  error_rate_threshold: 0.05
+
+# ========================================
+# API CONFIGURATION
+# ========================================
+api:
+  # Server settings
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  reload: false # Set to true for development
+
+  # CORS
+  allow_origins:
+    - "http://localhost:3000"
+    - "http://localhost:8000"
+  allow_credentials: true
+  allow_methods:
+    - "GET"
+    - "POST"
+  allow_headers:
+    - "*"
+
+  # Rate limiting
+  enable_rate_limiting: true
+  rate_limit_per_minute: 60
+
+  # Security
+  enable_input_validation: true
+  max_request_size_mb: 10
+  timeout_seconds: 30
+
+# ========================================
+# DOCKER CONFIGURATION
+# ========================================
+docker:
+  # Image settings
+  image_name: "migraine-ml-api"
+  image_tag: "latest"
+  registry: "docker.io" # Change to your registry
+
+  # Container settings
+  container_name: "migraine-api"
+  restart_policy: "unless-stopped"
+
+  # Resource limits
+  memory_limit: "2g"
+  cpu_limit: "2"
+
+  # Health check
+  health_check_interval: "30s"
+  health_check_timeout: "5s"
+  health_check_retries: 3
+
+# ========================================
+# KUBERNETES CONFIGURATION
+# ========================================
+kubernetes:
+  # Namespace
+  namespace: "migraine-ml"
+
+  # Deployment
+  replicas: 3
+  max_replicas: 10
+  min_replicas: 2
+
+  # Resource requests/limits
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+
+  # Auto-scaling
+  autoscaling:
+    enabled: true
+    target_cpu_utilization: 70
+    target_memory_utilization: 80
+
+  # Service
+  service_type: "LoadBalancer" # Options: ClusterIP, NodePort, LoadBalancer
+  service_port: 8000
+
+  # Ingress
+  ingress:
+    enabled: true
+    host: "migraine-ml.example.com"
+    tls_enabled: true
+    tls_secret_name: "migraine-tls"
+
+# ========================================
+# CI/CD CONFIGURATION
+# ========================================
+cicd:
+  # GitHub Actions
+  enable_github_actions: true
+
+  # Triggers
+  trigger_on_push: true
+  trigger_on_pull_request: true
+  trigger_branches:
+    - "main"
+    - "develop"
+
+  # Stages
+  stages:
+    - "code_quality"
+    - "data_validation"
+    - "unit_tests"
+    - "model_training"
+    - "docker_build"
+    - "deploy_kubernetes"
+    - "api_testing"
+    - "setup_monitoring"
+    - "notify"
+
+  # Code quality
+  code_quality:
+    run_black: true
+    run_flake8: true
+    run_pylint: true
+    pylint_threshold: 8.0
+
+  # Testing
+  testing:
+    coverage_threshold: 80.0
+    run_integration_tests: true
+
+  # Deployment
+  deployment:
+    auto_deploy_on_success: true
+    deployment_strategy: "rolling" # Options: rolling, blue-green, canary
+
+  # Notifications
+  notifications:
+    slack_enabled: true
+    email_enabled: false
+
+# ========================================
+# MLSECOPS
+# ========================================
+security:
+  # Input validation
+  enable_input_sanitization: true
+  max_input_length: 1000
+
+  # Model security
+  enable_model_signature_verification: true
+  enable_adversarial_detection: false # Advanced feature
+
+  # Secrets management
+  use_environment_variables: true
+  rotate_secrets_days: 90
+
+  # Container security
+  run_as_non_root: true
+  read_only_filesystem: false
+  drop_capabilities:
+    - "ALL"
+
+  # Vulnerability scanning
+  enable_trivy_scan: true
+  scan_on_build: true
+  fail_on_critical: true
+
+# ========================================
+# LOGGING
+# ========================================
+logging:
+  # Log level
+  level: "INFO" # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+  # Log format
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  date_format: "%Y-%m-%d %H:%M:%S"
+
+  # Log files
+  enable_file_logging: true
+  log_file: "logs/application.log"
+  max_file_size_mb: 10
+  backup_count: 5
+
+  # Log to console
+  enable_console_logging: true
+
+  # Structured logging
+  enable_json_logging: false
+
+# ========================================
+# ALERTING
+# ========================================
+alerting:
+  # Alert channels
+  channels:
+    - "slack"
+    - "email"
+
+  # Slack configuration
+  slack:
+    webhook_url: "${SLACK_WEBHOOK_URL}"
+    channel: "#ml-alerts"
+    username: "Migraine ML Bot"
+
+  # Email configuration
+  email:
+    smtp_host: "smtp.gmail.com"
+    smtp_port: 587
+    from_address: "${ALERT_EMAIL_FROM}"
+    to_addresses:
+      - "${ALERT_EMAIL_TO}"
+
+  # Alert conditions
+  conditions:
+    drift_detected: true
+    model_performance_degraded: true
+    high_error_rate: true
+    deployment_failed: true
+    data_validation_failed: true
+
+# ========================================
+# DEVELOPMENT
+# ========================================
+development:
+  # Debug mode
+  debug: false
+
+  # Hot reload
+  auto_reload: false
+
+  # Test data generation
+  generate_synthetic_data: false
+  synthetic_data_size: 1000
+
+  # Profiling
+  enable_profiling: false
+  profile_output_dir: "profiling"

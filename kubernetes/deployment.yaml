@@ -1,0 +1,448 @@
+# Kubernetes Deployment Configuration for Migraine ML
+# Complete production-ready configuration with services, configmaps, and HPA
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: migraine-ml
+  labels:
+    name: migraine-ml
+    environment: production
+
+---
+# ConfigMap for application configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ml-api-config
+  namespace: migraine-ml
+data:
+  MLFLOW_TRACKING_URI: "mlruns"
+  API_PORT: "8000"
+  LOG_LEVEL: "INFO"
+  WORKERS: "4"
+
+---
+# Secret for sensitive data (example - use real secrets in production)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ml-api-secrets
+  namespace: migraine-ml
+type: Opaque
+data:
+  # Base64 encoded values (example)
+  # echo -n 'your-secret-key' | base64
+  API_KEY: YXBpLXNlY3JldC1rZXk=
+
+---
+# Persistent Volume Claim for MLflow
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mlflow-pvc
+  namespace: migraine-ml
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+
+---
+# Persistent Volume Claim for Models
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: models-pvc
+  namespace: migraine-ml
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: standard
+
+---
+# Deployment for ML API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: migraine-api
+  namespace: migraine-ml
+  labels:
+    app: migraine-api
+    version: v1.0.0
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: migraine-api
+  template:
+    metadata:
+      labels:
+        app: migraine-api
+        version: v1.0.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+    spec:
+      containers:
+        - name: migraine-api
+          image: darish05/migraine-ml:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          env:
+            - name: MLFLOW_TRACKING_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: ml-api-config
+                  key: MLFLOW_TRACKING_URI
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: WORKERS
+              valueFrom:
+                configMapKeyRef:
+                  name: ml-api-config
+                  key: WORKERS
+          volumeMounts:
+            - name: mlflow-storage
+              mountPath: /app/mlruns
+            - name: models-storage
+              mountPath: /app/models
+            - name: data-storage
+              mountPath: /app/data
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: false
+            allowPrivilegeEscalation: false
+      volumes:
+        - name: mlflow-storage
+          persistentVolumeClaim:
+            claimName: mlflow-pvc
+        - name: models-storage
+          persistentVolumeClaim:
+            claimName: models-pvc
+        - name: data-storage
+          emptyDir: {}
+
+---
+# Service for ML API
+apiVersion: v1
+kind: Service
+metadata:
+  name: migraine-api-service
+  namespace: migraine-ml
+  labels:
+    app: migraine-api
+spec:
+  type: LoadBalancer
+  selector:
+    app: migraine-api
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+      protocol: TCP
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+      protocol: TCP
+  sessionAffinity: ClientIP
+
+---
+# Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: migraine-api-hpa
+  namespace: migraine-ml
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: migraine-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+---
+# MLflow Server Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow-server
+  namespace: migraine-ml
+  labels:
+    app: mlflow-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlflow-server
+  template:
+    metadata:
+      labels:
+        app: mlflow-server
+    spec:
+      containers:
+        - name: mlflow
+          image: ghcr.io/mlflow/mlflow:latest
+          ports:
+            - containerPort: 5000
+          command:
+            - mlflow
+            - server
+            - --host
+            - "0.0.0.0"
+            - --port
+            - "5000"
+            - --backend-store-uri
+            - sqlite:///mlflow/mlruns/mlflow.db
+            - --default-artifact-root
+            - /mlflow/mlruns
+          volumeMounts:
+            - name: mlflow-storage
+              mountPath: /mlflow/mlruns
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: mlflow-storage
+          persistentVolumeClaim:
+            claimName: mlflow-pvc
+
+---
+# MLflow Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-service
+  namespace: migraine-ml
+spec:
+  type: ClusterIP
+  selector:
+    app: mlflow-server
+  ports:
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
+
+---
+# Ingress for external access (optional)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: migraine-ml-ingress
+  namespace: migraine-ml
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: migraine-ml.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: migraine-api-service
+                port:
+                  number: 8000
+    - host: mlflow.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mlflow-service
+                port:
+                  number: 5000
+  tls:
+    - hosts:
+        - migraine-ml.example.com
+        - mlflow.example.com
+      secretName: migraine-ml-tls
+
+---
+# Network Policy for security
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: migraine-api-network-policy
+  namespace: migraine-ml
+spec:
+  podSelector:
+    matchLabels:
+      app: migraine-api
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 8000
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: mlflow-server
+      ports:
+        - protocol: TCP
+          port: 5000
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 53  # DNS
+    app: ml-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow-ui-deployment
+  namespace: migraine-ml
+  labels:
+    app: mlflow-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlflow-ui
+  template:
+    metadata:
+      labels:
+        app: mlflow-ui
+    spec:
+      containers:
+        - name: mlflow-ui
+          image: python:3.9-slim
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - |
+              pip install mlflow==2.8.1 && \
+              mlflow ui --host 0.0.0.0 --port 5000 --backend-store-uri /mlruns
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: mlflow-storage
+              mountPath: /mlruns
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+      volumes:
+        - name: mlflow-storage
+          persistentVolumeClaim:
+            claimName: mlflow-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-ui-service
+  namespace: migraine-ml
+spec:
+  selector:
+    app: mlflow-ui
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: LoadBalancer
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ml-api-hpa
+  namespace: migraine-ml
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ml-api-deployment
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80

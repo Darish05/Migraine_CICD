@@ -1,0 +1,149 @@
+# dvc.yaml - Data Version Control Pipeline
+# Automated MLOps Pipeline for Migraine Prediction
+
+stages:
+  # Stage 1: Data Validation
+  data_validation:
+    cmd: python scripts/validate_data.py
+    deps:
+      - data/raw/migraine_dataset.csv
+      - scripts/validate_data.py
+    outs:
+      - reports/data_validation.html
+      - reports/data_validation.json
+    metrics:
+      - reports/data_validation.json:
+          cache: false
+
+  # Stage 2: Data Preprocessing
+  data_preprocessing:
+    cmd: python scripts/preprocess_data.py
+    deps:
+      - data/raw/migraine_dataset.csv
+      - scripts/preprocess_data.py
+    outs:
+      - data/processed/classification_data.csv
+      - data/processed/regression_data.csv
+      - models/preprocessors/scaler.pkl
+      - models/preprocessors/imputer.pkl
+    params:
+      - preprocessing.test_size
+      - preprocessing.random_state
+
+  # Stage 3: Feature Engineering
+  feature_engineering:
+    cmd: python scripts/feature_engineering.py
+    deps:
+      - data/processed/classification_data.csv
+      - scripts/feature_engineering.py
+    outs:
+      - data/features/engineered_features.csv
+      - data/features/feature_importance.csv
+      - data/features/feature_metadata.json
+      - models/feature_engineering/selected_features.json
+    params:
+      - features.n_features
+      - features.use_feature_selection
+
+  # Stage 4: Model Training
+  model_training:
+    cmd: python migraine_models_enhanced.py
+    deps:
+      - data/features/engineered_features.csv
+      - migraine_models_enhanced.py
+    outs:
+      - classification_model_top1.pkl
+      - classification_model_top2.pkl
+      - regression_model_top1.pkl
+      - regression_model_top2.pkl
+      - feature_names.pkl
+    metrics:
+      - models_info.json:
+          cache: false
+    params:
+      - model_training.n_estimators
+      - model_training.max_depth
+
+  model_evaluation:
+    cmd: python scripts/evaluate_models.py
+    deps:
+      - classification_model_top1.pkl
+      - classification_model_top2.pkl
+      - regression_model_top1.pkl
+      - regression_model_top2.pkl
+      - data/processed/test.csv
+      - scripts/evaluate_models.py
+    metrics:
+      - reports/evaluation_metrics.json:
+          cache: false
+    plots:
+      - reports/confusion_matrix.png
+      - reports/roc_curve.png
+      - reports/feature_importance.png
+
+---
+# params.yaml
+preprocessing:
+  test_size: 0.2
+  validation_size: 0.1
+  random_state: 42
+
+features:
+  selected_features:
+    - age
+    - gender
+    - sleep_hours
+    - sleep_quality
+    - stress_level
+    - hydration
+    - exercise
+    - screen_time
+    - caffeine_intake
+    - alcohol_intake
+    - weather_changes
+    - menstrual_cycle
+    - dehydration
+    - bright_light
+    - loud_noises
+    - strong_smells
+    - missed_meals
+    - specific_foods
+    - physical_activity
+    - neck_pain
+    - weather_pressure
+    - humidity
+    - temperature_change
+
+model_training:
+  n_estimators: [50, 100, 200]
+  max_depth: [3, 5, 7, 10, 15]
+  learning_rate: [0.01, 0.1, 0.3]
+  cv_folds: 3
+
+---
+# .dvc/config
+[core]
+    remote = myremote
+    autostage = true
+
+['remote "myremote"']
+    url = s3://my-dvc-bucket/migraine-ml
+    
+[cache]
+    type = copy
+    
+---
+# .dvcignore
+# Add patterns of files dvc should ignore, which could improve
+# the performance. Learn more at
+# https://dvc.org/doc/user-guide/dvcignore
+
+*.pyc
+__pycache__/
+.pytest_cache/
+.vscode/
+.idea/
+*.egg-info/
+mlruns/
+*.pkl
+!*.dvc

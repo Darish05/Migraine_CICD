@@ -1,0 +1,14 @@
+artifact_uri: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/26ff58167f61439987f4811dad256458/artifacts
+end_time: 1762004027079
+entry_point_name: ''
+experiment_id: '226322830588323774'
+lifecycle_stage: active
+run_id: 26ff58167f61439987f4811dad256458
+run_name: Classification_KNeighbors
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1762003968979
+status: 3
+tags: []
+user_id: Darish jerlin

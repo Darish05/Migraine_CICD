@@ -1,0 +1,14 @@
+artifact_uri: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/931d819a1cf246f58cd69ef46d084c68/artifacts
+end_time: 1762004329835
+entry_point_name: ''
+experiment_id: '226322830588323774'
+lifecycle_stage: active
+run_id: 931d819a1cf246f58cd69ef46d084c68
+run_name: Regression_KNeighbors
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1762004317438
+status: 3
+tags: []
+user_id: Darish jerlin

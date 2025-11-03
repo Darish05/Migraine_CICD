@@ -1,0 +1,6 @@
+artifact_location: file:D:/Mlops/migraine-ml/mlruns/226322830588323774
+creation_time: 1762002700005
+experiment_id: '226322830588323774'
+last_update_time: 1762002700005
+lifecycle_stage: active
+name: migraine_prediction

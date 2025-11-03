@@ -1,0 +1,14 @@
+artifact_uri: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/158fa8722f6c4302af2651032cb50dcf/artifacts
+end_time: 1762004225303
+entry_point_name: ''
+experiment_id: '226322830588323774'
+lifecycle_stage: active
+run_id: 158fa8722f6c4302af2651032cb50dcf
+run_name: Regression_GradientBoosting
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1762004200081
+status: 3
+tags: []
+user_id: Darish jerlin

@@ -1,0 +1,14 @@
+artifact_uri: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/1e8494a061424da79542a09d63cd8dd5/artifacts
+end_time: 1762004200072
+entry_point_name: ''
+experiment_id: '226322830588323774'
+lifecycle_stage: active
+run_id: 1e8494a061424da79542a09d63cd8dd5
+run_name: Regression_LightGBM
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1762004155538
+status: 3
+tags: []
+user_id: Darish jerlin

@@ -1,0 +1,10 @@
+artifact_location: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/models/m-92fbeb089f8349488a33a8a265150e0b/artifacts
+creation_timestamp: 1762003673794
+experiment_id: '226322830588323774'
+last_updated_timestamp: 1762003789541
+model_id: m-92fbeb089f8349488a33a8a265150e0b
+model_type: null
+name: model_LightGBM
+source_run_id: b6116b2cd1e14b9db90303010466b7e6
+status: 2
+status_message: null

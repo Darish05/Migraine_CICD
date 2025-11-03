@@ -1,0 +1,10 @@
+artifact_location: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/models/m-7d2ad2c5a2914aee88155c0eb81d7293/artifacts
+creation_timestamp: 1762003327911
+experiment_id: '226322830588323774'
+last_updated_timestamp: 1762003449083
+model_id: m-7d2ad2c5a2914aee88155c0eb81d7293
+model_type: null
+name: model_XGBoost
+source_run_id: b98757d2d12041f886ea22bfdf5225e6
+status: 2
+status_message: null

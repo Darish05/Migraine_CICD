@@ -1,0 +1,10 @@
+artifact_location: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/models/m-73234888d995470ca91a5332d5bd6f21/artifacts
+creation_timestamp: 1762003223501
+experiment_id: '226322830588323774'
+last_updated_timestamp: 1762003317131
+model_id: m-73234888d995470ca91a5332d5bd6f21
+model_type: null
+name: model_RandomForest
+source_run_id: 2f06101962674285a7cda48342104545
+status: 2
+status_message: null

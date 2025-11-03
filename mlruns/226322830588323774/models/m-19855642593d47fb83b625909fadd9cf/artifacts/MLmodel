@@ -1,0 +1,22 @@
+artifact_path: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/models/m-19855642593d47fb83b625909fadd9cf/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.13.7
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.7.2
+mlflow_version: 3.5.1
+model_id: m-19855642593d47fb83b625909fadd9cf
+model_size_bytes: 121821
+model_uuid: m-19855642593d47fb83b625909fadd9cf
+prompts: null
+run_id: d8091e4d989845ad89a16ed42d97f7ac
+utc_time_created: '2025-11-01 13:35:26.443194'

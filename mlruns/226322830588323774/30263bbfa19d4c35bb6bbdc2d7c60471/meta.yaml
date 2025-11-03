@@ -1,0 +1,14 @@
+artifact_uri: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/30263bbfa19d4c35bb6bbdc2d7c60471/artifacts
+end_time: 1762003840072
+entry_point_name: ''
+experiment_id: '226322830588323774'
+lifecycle_stage: active
+run_id: 30263bbfa19d4c35bb6bbdc2d7c60471
+run_name: Classification_LogisticRegression
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1762003815666
+status: 3
+tags: []
+user_id: Darish jerlin

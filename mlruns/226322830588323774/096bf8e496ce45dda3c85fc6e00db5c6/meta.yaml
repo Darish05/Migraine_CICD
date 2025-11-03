@@ -1,0 +1,14 @@
+artifact_uri: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/096bf8e496ce45dda3c85fc6e00db5c6/artifacts
+end_time: 1762004236113
+entry_point_name: ''
+experiment_id: '226322830588323774'
+lifecycle_stage: active
+run_id: 096bf8e496ce45dda3c85fc6e00db5c6
+run_name: Regression_Ridge
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1762004225311
+status: 3
+tags: []
+user_id: Darish jerlin

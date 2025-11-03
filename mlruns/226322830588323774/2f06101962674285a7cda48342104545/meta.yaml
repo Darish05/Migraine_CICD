@@ -1,0 +1,14 @@
+artifact_uri: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/2f06101962674285a7cda48342104545/artifacts
+end_time: 1762003317170
+entry_point_name: ''
+experiment_id: '226322830588323774'
+lifecycle_stage: active
+run_id: 2f06101962674285a7cda48342104545
+run_name: Classification_RandomForest
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1762003172990
+status: 3
+tags: []
+user_id: Darish jerlin

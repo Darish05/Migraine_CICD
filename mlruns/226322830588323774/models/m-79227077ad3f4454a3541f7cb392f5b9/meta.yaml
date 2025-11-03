@@ -1,0 +1,10 @@
+artifact_location: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/models/m-79227077ad3f4454a3541f7cb392f5b9/artifacts
+creation_timestamp: 1762004229648
+experiment_id: '226322830588323774'
+last_updated_timestamp: 1762004236097
+model_id: m-79227077ad3f4454a3541f7cb392f5b9
+model_type: null
+name: model_Ridge
+source_run_id: 096bf8e496ce45dda3c85fc6e00db5c6
+status: 2
+status_message: null

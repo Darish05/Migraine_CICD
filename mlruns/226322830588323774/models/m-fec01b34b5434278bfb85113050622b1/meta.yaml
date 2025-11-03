@@ -1,0 +1,10 @@
+artifact_location: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/models/m-fec01b34b5434278bfb85113050622b1/artifacts
+creation_timestamp: 1762004319958
+experiment_id: '226322830588323774'
+last_updated_timestamp: 1762004329804
+model_id: m-fec01b34b5434278bfb85113050622b1
+model_type: null
+name: model_KNeighbors
+source_run_id: 931d819a1cf246f58cd69ef46d084c68
+status: 2
+status_message: null

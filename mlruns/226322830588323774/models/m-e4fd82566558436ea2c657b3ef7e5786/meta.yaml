@@ -1,0 +1,10 @@
+artifact_location: file:D:/Mlops/migraine-ml/mlruns/226322830588323774/models/m-e4fd82566558436ea2c657b3ef7e5786/artifacts
+creation_timestamp: 1762004206702
+experiment_id: '226322830588323774'
+last_updated_timestamp: 1762004225285
+model_id: m-e4fd82566558436ea2c657b3ef7e5786
+model_type: null
+name: model_GradientBoosting
+source_run_id: 158fa8722f6c4302af2651032cb50dcf
+status: 2
+status_message: null

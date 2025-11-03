@@ -1,0 +1,86 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Data Validation Report</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .header { background: #4CAF50; color: white; padding: 20px; }
+            .fail { background: #f44336; color: white; padding: 20px; }
+            .check { margin: 10px 0; padding: 10px; border: 1px solid #ddd; }
+            .pass { border-left: 4px solid #4CAF50; }
+            .warning { border-left: 4px solid #ff9800; }
+            .fail-check { border-left: 4px solid #f44336; }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>Data Validation Report</h1>
+            <p>Generated: 2025-11-02T21:23:37.769187</p>
+            <p>Status: PASS</p>
+        </div>
+        
+        <h2>Summary</h2>
+        <p>Total Records: 8000</p>
+        <p>Passed Checks: 6</p>
+        <p>Warnings: 0</p>
+        <p>Failed Checks: 0</p>
+        
+        <h2>Validation Checks</h2>
+    
+        <div class="check pass">
+            <h3>Missing Columns</h3>
+            <p>Status: PASS</p>
+            <pre>{
+  "missing": []
+}</pre>
+        </div>
+        
+        <div class="check pass">
+            <h3>Missing Values</h3>
+            <p>Status: PASS</p>
+            <pre>{
+  "total_missing": 0,
+  "columns_with_missing": {}
+}</pre>
+        </div>
+        
+        <div class="check pass">
+            <h3>Data Types</h3>
+            <p>Status: PASS</p>
+            <pre>{
+  "issues": []
+}</pre>
+        </div>
+        
+        <div class="check pass">
+            <h3>Value Ranges</h3>
+            <p>Status: PASS</p>
+            <pre>{
+  "issues": []
+}</pre>
+        </div>
+        
+        <div class="check pass">
+            <h3>Target Distribution</h3>
+            <p>Status: PASS</p>
+            <pre>{
+  "distribution": {
+    "1": 6378,
+    "0": 1622
+  },
+  "imbalance_ratio": 3.9321824907521576
+}</pre>
+        </div>
+        
+        <div class="check pass">
+            <h3>Duplicates</h3>
+            <p>Status: PASS</p>
+            <pre>{
+  "count": 0
+}</pre>
+        </div>
+        
+    </body>
+    </html>
+    
