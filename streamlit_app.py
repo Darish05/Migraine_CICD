@@ -350,36 +350,53 @@ elif page == "📊 Models Info":
             
             # Classification Models
             st.subheader("🎯 Classification Models (Migraine Occurrence)")
-            class_models = models_info.get("classification", {})
+            class_models = models_info.get("classification", [])
             
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.markdown("#### Top Model 1")
-                model1 = class_models.get("top_model_1", {})
-                st.json(model1)
-            
-            with col2:
-                st.markdown("#### Top Model 2")
-                model2 = class_models.get("top_model_2", {})
-                st.json(model2)
+            if isinstance(class_models, list) and len(class_models) > 0:
+                # Create a DataFrame for better display
+                class_df = pd.DataFrame(class_models)
+                
+                # Display each model
+                for idx, model in enumerate(class_models):
+                    with st.expander(f"📊 {model.get('name', f'Model {idx+1}')} - Accuracy: {model.get('metrics', {}).get('accuracy', 0):.2%}"):
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            st.markdown("**Metrics:**")
+                            metrics = model.get('metrics', {})
+                            for key, value in metrics.items():
+                                st.metric(key.replace('_', ' ').title(), f"{value:.4f}")
+                        
+                        with col2:
+                            st.markdown("**Parameters:**")
+                            params = model.get('params', {})
+                            st.json(params)
+            else:
+                st.warning("No classification models found")
             
             # Regression Models
             st.markdown("---")
             st.subheader("📈 Regression Models (Severity Prediction)")
-            reg_models = models_info.get("regression", {})
+            reg_models = models_info.get("regression", [])
             
-            col3, col4 = st.columns(2)
-            
-            with col3:
-                st.markdown("#### Top Model 1")
-                reg_model1 = reg_models.get("top_model_1", {})
-                st.json(reg_model1)
-            
-            with col4:
-                st.markdown("#### Top Model 2")
-                reg_model2 = reg_models.get("top_model_2", {})
-                st.json(reg_model2)
+            if isinstance(reg_models, list) and len(reg_models) > 0:
+                # Display each model
+                for idx, model in enumerate(reg_models):
+                    with st.expander(f"📈 {model.get('name', f'Model {idx+1}')} - R² Score: {model.get('metrics', {}).get('r2_score', 0):.4f}"):
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            st.markdown("**Metrics:**")
+                            metrics = model.get('metrics', {})
+                            for key, value in metrics.items():
+                                st.metric(key.replace('_', ' ').title(), f"{value:.4f}")
+                        
+                        with col2:
+                            st.markdown("**Parameters:**")
+                            params = model.get('params', {})
+                            st.json(params)
+            else:
+                st.warning("No regression models found")
             
         else:
             st.error("Failed to fetch model information")

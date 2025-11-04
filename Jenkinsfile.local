@@ -9,9 +9,6 @@ pipeline {
         API_IMAGE = "migraine-ml-api"
         STREAMLIT_IMAGE = "migraine-streamlit"
         IMAGE_TAG = "${env.BUILD_NUMBER}"
-        
-        // ngrok configuration
-        NGROK_AUTHTOKEN = "2sRDKeqPO6hULmjOqi9z7nnM4ZV_3BWgexq6H2iRFSMyyEYfz"
     }
     
     options {
@@ -176,68 +173,6 @@ pipeline {
             }
         }
         
-        stage('Setup ngrok Tunnel') {
-            steps {
-                echo '🌐 Setting up ngrok tunnel for public access...'
-                sh '''
-                    # Install ngrok if not present
-                    if ! command -v ngrok &> /dev/null; then
-                        echo "📥 Installing ngrok..."
-                        cd /tmp
-                        wget -q https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
-                        tar xzf ngrok-v3-stable-linux-amd64.tgz
-                        mv ngrok /usr/local/bin/
-                        rm ngrok-v3-stable-linux-amd64.tgz
-                        echo "✅ ngrok installed"
-                    else
-                        echo "✅ ngrok already installed"
-                    fi
-                    
-                    # Configure authtoken
-                    echo "🔑 Configuring ngrok authtoken..."
-                    ngrok config add-authtoken ${NGROK_AUTHTOKEN}
-                    
-                    # Kill any existing ngrok processes
-                    pkill ngrok || true
-                    sleep 2
-                    
-                    # Start ngrok in background
-                    echo "🚀 Starting ngrok tunnel on port 8000..."
-                    nohup ngrok http 8000 > /tmp/ngrok.log 2>&1 &
-                    
-                    # Wait for ngrok to start
-                    echo "⏳ Waiting for ngrok to initialize..."
-                    sleep 5
-                    
-                    # Get the public URL
-                    echo "🔍 Fetching ngrok public URL..."
-                    NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | grep -o '"public_url":"https://[^"]*' | grep -o 'https://[^"]*' | head -1)
-                    
-                    if [ ! -z "$NGROK_URL" ]; then
-                        echo "✅ ngrok tunnel established!"
-                        echo ""
-                        echo "═══════════════════════════════════════"
-                        echo "   🌐 PUBLIC API URL (ngrok)"
-                        echo "═══════════════════════════════════════"
-                        echo ""
-                        echo "   $NGROK_URL"
-                        echo ""
-                        echo "═══════════════════════════════════════"
-                        echo ""
-                        echo "📋 Use this URL in Streamlit Cloud secrets:"
-                        echo "   API_URL = \\"$NGROK_URL\\""
-                        echo ""
-                        
-                        # Save URL to file for later use
-                        echo "$NGROK_URL" > /tmp/ngrok_url.txt
-                    else
-                        echo "⚠️  Could not retrieve ngrok URL"
-                        echo "   Check ngrok logs: cat /tmp/ngrok.log"
-                    fi
-                '''
-            }
-        }
-        
         stage('Deployment Report') {
             steps {
                 echo '📊 Generating deployment report...'
@@ -260,13 +195,10 @@ pipeline {
                     echo "  - API (Local):    http://localhost:8000"
                     echo "  - Streamlit:      http://localhost:8501"
                     echo "  - MLflow:         http://localhost:5000"
-                    
-                    # Show ngrok URL if available
-                    if [ -f /tmp/ngrok_url.txt ]; then
-                        NGROK_URL=$(cat /tmp/ngrok_url.txt)
-                        echo "  - API (Public):   $NGROK_URL"
-                    fi
-                    
+                    echo ""
+                    echo "🌐 To expose API publicly for Streamlit Cloud:"
+                    echo "   Run: ngrok http 8000"
+                    echo "   Then use the ngrok URL in Streamlit Cloud secrets"
                     echo "═══════════════════════════════════════"
                 '''
             }
@@ -282,18 +214,11 @@ pipeline {
             echo '  Streamlit UI (Local): http://localhost:8501'
             echo '  API Docs (Local):     http://localhost:8000/docs'
             echo '  MLflow:               http://localhost:5000'
-            sh '''
-                if [ -f /tmp/ngrok_url.txt ]; then
-                    NGROK_URL=$(cat /tmp/ngrok_url.txt)
-                    echo ""
-                    echo "🌐 Public API Access (ngrok):"
-                    echo "  $NGROK_URL"
-                    echo ""
-                    echo "📋 For Streamlit Cloud deployment:"
-                    echo "   Add this to Streamlit Cloud secrets:"
-                    echo "   API_URL = \\"$NGROK_URL\\""
-                fi
-            '''
+            echo ''
+            echo '🌐 To expose API for Streamlit Cloud deployment:'
+            echo '  1. Run: ngrok http 8000'
+            echo '  2. Copy the ngrok HTTPS URL'
+            echo '  3. Add to Streamlit Cloud secrets: API_URL = "https://your-ngrok-url.ngrok-free.app"'
         }
         
         failure {
